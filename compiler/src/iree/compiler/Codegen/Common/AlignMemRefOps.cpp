@@ -19,13 +19,18 @@ using namespace mlir;
 
 namespace {
 
-struct AlignMemrefLoadPattern : public OpRewritePattern<memref::LoadOp> {
-  using OpRewritePattern<memref::LoadOp>::OpRewritePattern;
-  LogicalResult matchAndRewrite(memref::LoadOp op,
+template <typename T>
+struct AlignMemrefOpPatternBase : public OpRewritePattern<T> {
+  using OpRewritePattern<T>::OpRewritePattern;
+  LogicalResult matchAndRewrite(T op,
                                 PatternRewriter &rewriter) const override {
     op.setAlignment(128);
     return failure();
   }
+};
+
+struct AlignMemrefLoad : public AlignMemrefOpPatternBase<memref::LoadOp> {
+  using AlignMemrefOpPatternBase<memref::LoadOp>::AlignMemrefOpPatternBase;
 };
 
 struct AlignMemRefOpsPass
@@ -47,7 +52,7 @@ struct AlignMemRefOpsPass
 
 namespace mlir::iree_compiler {
 void populateAlignMemRefOpsPatterns(RewritePatternSet &patterns) {
-  patterns.insert<AlignMemrefLoadPattern>(patterns.getContext());
+  patterns.insert<AlignMemrefLoad>(patterns.getContext());
 }
 
 std::unique_ptr<Pass> createAlignMemRefOpsPass() {
