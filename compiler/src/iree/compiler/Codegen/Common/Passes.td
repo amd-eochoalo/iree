@@ -222,6 +222,10 @@ def DecomposeMemrefsPass :
 def AlignMemRefOpsPass:
     Pass<"iree-codegen-align-memref-ops", ""> {
   let summary = "Aligns memref ops";
+
+  let dependentDialects = [
+      "memref::MemRefDialect"
+  ];
 }
 
 

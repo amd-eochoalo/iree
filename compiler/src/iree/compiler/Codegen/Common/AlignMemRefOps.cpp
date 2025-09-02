@@ -23,6 +23,7 @@ struct AlignMemrefLoadPattern : public OpRewritePattern<memref::LoadOp> {
   using OpRewritePattern<memref::LoadOp>::OpRewritePattern;
   LogicalResult matchAndRewrite(memref::LoadOp op,
                                 PatternRewriter &rewriter) const override {
+    op.setAlignment(128);
     return failure();
   }
 };
