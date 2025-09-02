@@ -33,6 +33,10 @@ struct AlignMemrefLoad : public AlignMemrefOpPatternBase<memref::LoadOp> {
   using AlignMemrefOpPatternBase<memref::LoadOp>::AlignMemrefOpPatternBase;
 };
 
+struct AlignMemrefStore : public AlignMemrefOpPatternBase<memref::StoreOp> {
+  using AlignMemrefOpPatternBase<memref::StoreOp>::AlignMemrefOpPatternBase;
+};
+
 struct AlignMemRefOpsPass
     : public impl::AlignMemRefOpsPassBase<AlignMemRefOpsPass> {
   using impl::AlignMemRefOpsPassBase<
@@ -52,7 +56,7 @@ struct AlignMemRefOpsPass
 
 namespace mlir::iree_compiler {
 void populateAlignMemRefOpsPatterns(RewritePatternSet &patterns) {
-  patterns.insert<AlignMemrefLoad>(patterns.getContext());
+  patterns.insert<AlignMemrefLoad, AlignMemrefStore>(patterns.getContext());
 }
 
 std::unique_ptr<Pass> createAlignMemRefOpsPass() {
