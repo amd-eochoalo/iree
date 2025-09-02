@@ -102,6 +102,7 @@ buildVectorVMVXTransformPassPipeline(OpPassManager &variantPassManager) {
       .addPass(createCSEPass);
 
   modulePassManager.addPass(createFlattenMemRefSubspanPass());
+  modulePassManager.addPass(createAlignMemRefOpsPass());
   modulePassManager.addPass(memref::createNormalizeMemRefsPass());
 
   FunctionLikeNest(modulePassManager)
