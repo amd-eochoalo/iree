@@ -130,7 +130,7 @@ addTileAndDistributePasses(OpPassManager &funcPassManager,
   if (pipelineOpt.disableDistribution) {
     return;
   }
-  if (clTileDispatchUsingForall) {
+  if (false) {
     funcPassManager.addPass(
         createTileAndDistributeToWorkgroupsUsingForallOpPass());
     funcPassManager.addPass(createBufferizeDispatchTensorLoadStorePass());

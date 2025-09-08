@@ -230,7 +230,7 @@ static void tileAndDistributeToWorkgroup(
     std::optional<ConvertToDestinationPassingStylePassOptions>
         convertToDpsOptions = ConvertToDestinationPassingStylePassOptions{},
     ReorderWorkgroupsStrategy strategy = ReorderWorkgroupsStrategy::None) {
-  if (useForall) {
+  if (false) {
     assert((strategy == ReorderWorkgroupsStrategy::None ||
             strategy == ReorderWorkgroupsStrategy::Transpose) &&
            "Only None and Transpose reorder strategies are supported with "
@@ -294,7 +294,7 @@ static void addGPUVectorizationPasses(OpPassManager &funcPassManager,
 //===---------------------------------------------------------------------===//
 
 void addGPUVectorizationPassPipeline(OpPassManager &funcPassManager) {
-  tileAndDistributeToWorkgroup(funcPassManager, /*useForall=*/true);
+  tileAndDistributeToWorkgroup(funcPassManager, /*useForall=*/false);
 
   funcPassManager.addPass(createConfigTrackingCanonicalizerPass());
   funcPassManager.addPass(createConfigTrackingCanonicalizerPass());
@@ -421,7 +421,7 @@ void addGPUTileAndFusePassPipeline(OpPassManager &funcPassManager,
   // TODO (nirvedhmeshram) : Can remove this pass after
   // https://github.com/iree-org/iree/issues/19546 is fixed.
   funcPassManager.addPass(createConvertAccGEMMToGEMMPass());
-  tileAndDistributeToWorkgroup(funcPassManager, /*useForall=*/true,
+  tileAndDistributeToWorkgroup(funcPassManager, /*useForall=*/false,
                                /*convertToDpsOptions=*/std::nullopt);
 
   // Step 0. Apply any user annotated lowering strategies. This runs first as
@@ -577,7 +577,9 @@ void addGPUTileAndFusePassPipeline(OpPassManager &funcPassManager,
     options.paddingBits = 64;
     funcPassManager.addPass(createGPUReduceBankConflictsPass(options));
   }
+  funcPassManager.addPass(createGPUReuseSharedMemoryAllocsPass());
   funcPassManager.addPass(createHoistStaticallyBoundAllocationsPass());
+  funcPassManager.addPass(createAlignMemRefOpsPass());
   if (forROCDL && pipelineOptions.prefetchSharedMemory) {
     funcPassManager.addPass(createFissionTransferOpsInControlFlowPass());
     funcPassManager.addPass(createRemoveSingleIterationLoopPass());
@@ -604,7 +606,7 @@ void addGPUTileAndFusePassPipeline(OpPassManager &funcPassManager,
 //===---------------------------------------------------------------------===//
 
 void addGPUWinogradVectorizePassPipeline(OpPassManager &funcPassManager) {
-  tileAndDistributeToWorkgroup(funcPassManager, /*useForall=*/true);
+  tileAndDistributeToWorkgroup(funcPassManager, /*useForall=*/false);
 
   funcPassManager.addPass(createConfigTrackingCanonicalizerPass());
   funcPassManager.addPass(createConfigTrackingCanonicalizerPass());
@@ -642,7 +644,7 @@ void addGPUWinogradVectorizePassPipeline(OpPassManager &funcPassManager) {
 
 void addGPUTransposePassPipeline(OpPassManager &funcPassManager,
                                  const GPUPipelineOptions &options) {
-  tileAndDistributeToWorkgroup(funcPassManager, /*useForall=*/true);
+  tileAndDistributeToWorkgroup(funcPassManager, /*useForall=*/false);
 
   funcPassManager.addPass(createConfigTrackingCanonicalizerPass());
   funcPassManager.addPass(createConfigTrackingCanonicalizerPass());
@@ -751,7 +753,7 @@ void addGPUVectorDistributePassPipeline(OpPassManager &funcPassManager,
   ReorderWorkgroupsStrategy reorderStrategy =
       getReorderWorkgroupsStrategy(options.reorderStrategy);
 
-  tileAndDistributeToWorkgroup(funcPassManager, /*useForall=*/true,
+  tileAndDistributeToWorkgroup(funcPassManager, /*useForall=*/false,
                                /*convertToDpsOptions=*/std::nullopt,
                                /*reorderStrategy=*/reorderStrategy);
 
@@ -878,7 +880,7 @@ void addGPUVectorDistributePassPipeline(OpPassManager &funcPassManager,
 void addGPUWarpReductionPassPipeline(OpPassManager &funcPassManager,
                                      bool forROCDL) {
   tileAndDistributeToWorkgroup(
-      funcPassManager, /*useForall=*/clDistributeToWorkgroupsUsingForall);
+      funcPassManager, /*useForall=*/false);
   funcPassManager.addPass(createRematerializeParallelOpsPass());
   funcPassManager.addPass(createConfigTrackingCanonicalizerPass());
   funcPassManager.addPass(createGPUTileReductionPass());
@@ -942,7 +944,7 @@ void addGPUDefaultPassPipeline(OpPassManager &funcPassManager,
                                const GPUPipelineOptions &options) {
   ConvertToDestinationPassingStylePassOptions dpsOptions;
   dpsOptions.useWARForCooperativeMatrixCodegen = true;
-  tileAndDistributeToWorkgroup(funcPassManager, /*useForall=*/true,
+  tileAndDistributeToWorkgroup(funcPassManager, /*useForall=*/false,
                                /*convertToDpsOptions=*/dpsOptions);
   if (options.enableUkernels) {
     funcPassManager.addPass(createGPULowerToUKernelsPass());
