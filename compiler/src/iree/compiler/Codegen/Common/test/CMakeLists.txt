@@ -32,6 +32,7 @@ iree_lit_test_suite(
     "convert_to_destination_passing_style.mlir"
     "convert_unsupported_float_arith.mlir"
     "contract_canonicalize_layout.mlir"
+    "contract_unrolling.mlir"
     "convert_unsupported_float_to_int_buffers.mlir"
     "convert_workgroup_forall_to_pcf.mlir"
     "convolution_to_igemm.mlir"
