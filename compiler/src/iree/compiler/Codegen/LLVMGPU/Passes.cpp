@@ -998,8 +998,10 @@ static void addLowerToLLVMGPUPasses(OpPassManager &modulePassManager,
 
   // This pass needs to run before SCF -> CF.
   funcPassManager.addPass(createLLVMGPUVectorLoweringPass)
+      .addPass(createLLVMGPULegalizeNDVectorsPass)
       .addPass(createCanonicalizerPass)
       .addPass(createCSEPass);
+
   addLowerAndOptimizeAddressComputationPasses(funcPassManager);
 
   if (forROCDL) {
